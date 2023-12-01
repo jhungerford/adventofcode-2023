@@ -10,6 +10,7 @@ func main() {
 	lines, err := util.ReadInputLines("input/day1.txt")
 	if err != nil {
 		fmt.Println("failed to read lines", err)
+		return
 	}
 
 	fmt.Println("Part 1: ", day1.Part1(lines))

@@ -6,7 +6,6 @@ import (
 )
 
 // Part1 sums calibration values in the given lines, where a calibration value is the first and last digit in a line.
-// Panics if an error occurs while reading the input file.
 func Part1(lines []string) int {
 	sum := 0
 
@@ -18,8 +17,7 @@ func Part1(lines []string) int {
 }
 
 // Part2 sums real values in the given lines, where a real value is the first and last digit in a line.
-// Digits can either be numeric, or spelled out with letters like 'one'
-// Panics if an error occurs while reading the input file.
+// Digits can either be numeric, or spelled out with letters like 'one'.
 func Part2(lines []string) int {
 	sum := 0
 
