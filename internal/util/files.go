@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 )
 
-// ReadInputLines returns lines in the given file relative to the current working directory.
+// ReadInputLines returns lines in the given file.  Checks a few locations for the input file.
 func ReadInputLines(filename string) ([]string, error) {
 	pwd, err := os.Getwd()
 	if err != nil {
