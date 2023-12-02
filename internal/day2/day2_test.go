@@ -20,6 +20,21 @@ func Test_Part1(t *testing.T) {
 	}
 }
 
+func Test_Part2(t *testing.T) {
+	t.Parallel()
+
+	games, err := LoadGames("day2_sample.txt")
+	if err != nil {
+		t.Fatalf("failed to load games: %v", err)
+	}
+
+	want := 2286
+
+	if got := Part2(games); got != want {
+		t.Errorf("Part2() = %v, want %v", got, want)
+	}
+}
+
 func Test_parseGame(t *testing.T) {
 	t.Parallel()
 

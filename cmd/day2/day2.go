@@ -12,5 +12,6 @@ func main() {
 		return
 	}
 
-	fmt.Println("Part1:", day2.Part1(games))
+	fmt.Println("Part 1:", day2.Part1(games))
+	fmt.Println("Part 2:", day2.Part2(games))
 }

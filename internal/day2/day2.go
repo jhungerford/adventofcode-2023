@@ -100,3 +100,22 @@ func Part1(games []Game) int {
 
 	return sum
 }
+
+// Part2 finds the power set of each game, which is the product of the minimum number of cubes, and returns the sum.
+func Part2(games []Game) int {
+	var sum int
+
+	for _, g := range games {
+		need := pull{}
+
+		for _, p := range g.pulls {
+			need.red = max(need.red, p.red)
+			need.green = max(need.green, p.green)
+			need.blue = max(need.blue, p.blue)
+		}
+
+		sum += need.red * need.green * need.blue
+	}
+
+	return sum
+}
