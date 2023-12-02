@@ -46,6 +46,7 @@ type SectionLineParser[T any] func(string, *T) (string, error)
 
 // ParseInputLinesSections parses an input file that can contain multiple sections.  sectionParsers is a map of
 // section name to a SectionLineParser, which parses a line and returns the name of the section to move to.
+// Ignores blank lines.
 func ParseInputLinesSections[T any](
 	filename, firstSection string,
 	t T,
@@ -69,6 +70,10 @@ func ParseInputLinesSections[T any](
 
 	for scanner.Scan() {
 		line := scanner.Text()
+
+		if line == "" {
+			continue
+		}
 
 		sectionParser, ok := sectionParsers[currentSection]
 		if !ok {

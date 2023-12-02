@@ -62,10 +62,6 @@ func Test_ParseInputLinesSections(t *testing.T) {
 		"header": func(line string, r *resultStruct) (string, error) {
 			r.header = line
 
-			return "skipHeaderSeparator", nil
-		},
-
-		"skipHeaderSeparator": func(line string, r *resultStruct) (string, error) {
 			return "parseNums", nil
 		},
 
