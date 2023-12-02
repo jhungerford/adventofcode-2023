@@ -2,6 +2,7 @@ package util
 
 import (
 	"errors"
+	"fmt"
 	"reflect"
 	"strconv"
 	"testing"
@@ -42,5 +43,50 @@ func Test_ParseInputLinesFailParse(t *testing.T) {
 
 	if err == nil || !errors.Is(err, parseErr) {
 		t.Fatalf("ParseInputLines should have thrown a parseErr, but err was %v", err)
+	}
+}
+
+func Test_ParseInputLinesSections(t *testing.T) {
+	type resultStruct struct {
+		header string
+		nums   []int
+	}
+
+	want := resultStruct{
+		header: "header - file counts to 3",
+		nums:   []int{1, 2, 3},
+	}
+
+	// file contains a header, a blank line, and numbers.
+	parsers := map[string]SectionLineParser[resultStruct]{
+		"header": func(line string, r *resultStruct) (string, error) {
+			r.header = line
+
+			return "skipHeaderSeparator", nil
+		},
+
+		"skipHeaderSeparator": func(line string, r *resultStruct) (string, error) {
+			return "parseNums", nil
+		},
+
+		"parseNums": func(line string, r *resultStruct) (string, error) {
+			num, err := strconv.Atoi(line)
+			if err != nil {
+				return "", fmt.Errorf("failed to parse '%s' as a number: %v", line, err)
+			}
+
+			r.nums = append(r.nums, num)
+
+			return "parseNums", nil
+		},
+	}
+
+	got, err := ParseInputLinesSections("files_sample_sections.txt", "header", resultStruct{}, parsers)
+	if err != nil {
+		t.Fatalf("failed to parse input lines: %v", err)
+	}
+
+	if !reflect.DeepEqual(want, got) {
+		t.Errorf("ParseInputLines() = %+v, want %+v", got, want)
 	}
 }
