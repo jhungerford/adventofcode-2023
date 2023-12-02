@@ -8,8 +8,49 @@ import (
 	"path/filepath"
 )
 
-// ReadInputLines returns lines in the given file.  Checks a few locations for the input file.
+// ParseInputLines applies the parseLine function to each line in the input file.
+func ParseInputLines[T any](filename string, parseLine LineParser[T]) ([]T, error) {
+	file, err := findInputFile(filename)
+	if err != nil {
+		return nil, err
+	}
+
+	defer func(file *os.File) {
+		cerr := file.Close()
+		if cerr != nil {
+			fmt.Printf("failed to close file: %v\n", cerr)
+		}
+	}(file)
+
+	var parsedLines []T
+
+	scanner := bufio.NewScanner(file)
+
+	for scanner.Scan() {
+		line := scanner.Text()
+
+		parsedLine, perr := parseLine(line)
+		if perr != nil {
+			return nil, fmt.Errorf("failed to parse line '%s': %w", line, perr)
+		}
+
+		parsedLines = append(parsedLines, parsedLine)
+	}
+
+	if scanner.Err() != nil {
+		return nil, fmt.Errorf("failed to read lines from file: %w", err)
+	}
+
+	return parsedLines, nil
+}
+
+// ReadInputLines returns the raw lines in the input file.
 func ReadInputLines(filename string) ([]string, error) {
+	return ParseInputLines(filename, StringLineParser)
+}
+
+// findInputFile locates the given input file, checking a few likely locations.
+func findInputFile(filename string) (*os.File, error) {
 	pwd, err := os.Getwd()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get working dir: %w", err)
@@ -42,24 +83,13 @@ func ReadInputLines(filename string) ([]string, error) {
 		return nil, fmt.Errorf("failed to open file: %w\nchecked: %+v", errors.Unwrap(ferr), checkFiles)
 	}
 
-	defer func(file *os.File) {
-		cerr := file.Close()
-		if cerr != nil {
-			fmt.Printf("failed to close file: %v\n", cerr)
-		}
-	}(file)
+	return file, nil
+}
 
-	var lines []string
+// LineParser parses a generic type from the given line.
+type LineParser[T any] func(string) (T, error)
 
-	scanner := bufio.NewScanner(file)
-
-	for scanner.Scan() {
-		lines = append(lines, scanner.Text())
-	}
-
-	if scanner.Err() != nil {
-		return nil, fmt.Errorf("failed to read lines from file: %w", err)
-	}
-
-	return lines, nil
+// StringLineParser returns the given line as-is.
+func StringLineParser(line string) (string, error) {
+	return line, nil
 }
