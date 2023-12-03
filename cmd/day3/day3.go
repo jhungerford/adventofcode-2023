@@ -13,4 +13,5 @@ func main() {
 	}
 
 	fmt.Println("Part 1:", day3.Part1(schematic))
+	fmt.Println("Part 2:", day3.Part2(schematic))
 }

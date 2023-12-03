@@ -16,3 +16,18 @@ func TestPart1(t *testing.T) {
 		t.Errorf("Part1() = %v, want %v", got, want)
 	}
 }
+
+func TestPart2(t *testing.T) {
+	t.Parallel()
+
+	schematic, err := LoadSchematic("day3_sample.txt")
+	if err != nil {
+		t.Fatalf("failed to load schematic: %v", err)
+	}
+
+	want := 467835
+
+	if got := Part2(schematic); got != want {
+		t.Errorf("Part1() = %v, want %v", got, want)
+	}
+}
