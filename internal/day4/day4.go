@@ -3,6 +3,7 @@ package day4
 import (
 	"fmt"
 	"github.com/jhungerford/adventofcode-2023/internal/util"
+	"math"
 	"regexp"
 	"slices"
 	"strconv"
@@ -70,6 +71,30 @@ func Part1(cards []Card) int {
 	return score
 }
 
+// Part2 calculates the total number of cards you end up with.  A card with winning numbers wins copies of
+// the cards below the winning card equal to the number of matches.
+func Part2(cards []Card) int {
+	cardCounts := make([]int, 0, len(cards))
+
+	for range cards {
+		cardCounts = append(cardCounts, 1)
+	}
+
+	for i, card := range cards {
+		for j := 1; j <= card.matches(); j++ {
+			cardCounts[i+j] += cardCounts[i]
+		}
+	}
+
+	totalCards := 0
+
+	for _, num := range cardCounts {
+		totalCards += num
+	}
+
+	return totalCards
+}
+
 type Card struct {
 	num     int
 	winning []int
@@ -79,17 +104,23 @@ type Card struct {
 // score returns this card's score.  The first matching winning number is worth one point, and each match
 // after the first doubles the card's score.
 func (c Card) score() int {
-	score := 0
+	matches := c.matches()
+	if matches == 0 {
+		return 0
+	}
+
+	return int(math.Pow(2.0, float64(matches-1)))
+}
+
+// matches returns the number of matching numbers on this card.
+func (c Card) matches() int {
+	matches := 0
 
 	for _, n := range c.have {
 		if slices.Contains(c.winning, n) {
-			if score == 0 {
-				score = 1
-			} else {
-				score *= 2
-			}
+			matches++
 		}
 	}
 
-	return score
+	return matches
 }
