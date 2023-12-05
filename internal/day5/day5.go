@@ -6,6 +6,7 @@ import (
 	"github.com/jhungerford/adventofcode-2023/internal/util"
 	"math"
 	"regexp"
+	"sync"
 )
 
 // Part1 returns the lowest location number that corresponds to any of the initial seed numbers.
@@ -14,6 +15,40 @@ func Part1(almanac Almanac) int {
 
 	for _, seed := range almanac.seeds {
 		lowestLocation = min(lowestLocation, almanac.resolveLocation(seed))
+	}
+
+	return lowestLocation
+}
+
+// Part2 returns the lowest location number that corresponds to any of the initial seed numbers,
+// where the seed like contains ranges of seeds.
+func Part2(almanac Almanac) int {
+	locs := make(chan int, len(almanac.seeds)/2)
+	var wg sync.WaitGroup
+
+	for i := 0; i < len(almanac.seeds); i += 2 {
+		wg.Add(1)
+
+		go func(seed, length int) {
+			defer wg.Done()
+
+			lowest := math.MaxInt
+
+			for plusSeed := 0; plusSeed < length; plusSeed++ {
+				lowest = min(lowest, almanac.resolveLocation(seed+plusSeed))
+			}
+
+			locs <- lowest
+		}(almanac.seeds[i], almanac.seeds[i+1])
+	}
+
+	wg.Wait()
+	close(locs)
+
+	lowestLocation := math.MaxInt
+
+	for loc := range locs {
+		lowestLocation = min(lowestLocation, loc)
 	}
 
 	return lowestLocation
@@ -135,7 +170,7 @@ func (a Almanac) resolveLocation(seed int) int {
 // mapID maps the id from a source category to a destination category
 func (c category) mapID(id int) int {
 	for _, r := range c.idRanges {
-		if id >= r.sourceStart && id <= r.sourceStart+r.size {
+		if id >= r.sourceStart && id < r.sourceStart+r.size {
 			return r.destStart + id - r.sourceStart
 		}
 	}

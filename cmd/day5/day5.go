@@ -12,4 +12,5 @@ func main() {
 	}
 
 	fmt.Println("Part 1:", day5.Part1(almanac))
+	fmt.Println("Part 2:", day5.Part2(almanac))
 }
