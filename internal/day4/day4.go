@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/jhungerford/adventofcode-2023/internal/util"
 	"math"
-	"regexp"
 	"slices"
 	"strconv"
 	"strings"
@@ -14,9 +13,7 @@ import (
 func LoadCards(filename string) ([]Card, error) {
 	return util.ParseInputLines(filename, func(line string) (Card, error) {
 		// Line looks like 'Card 1: 41 48 83 86 17 | 83 86  6 31 17  9 48 53'
-
-		re := regexp.MustCompile("  +")
-		line = re.ReplaceAllString(line, " ")
+		line = util.CondenseSpaces(line)
 
 		numIndex := strings.Index(line, ":")
 		separatorIndex := strings.Index(line, "|")
