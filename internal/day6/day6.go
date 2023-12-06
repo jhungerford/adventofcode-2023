@@ -48,21 +48,41 @@ func Part1(races Races) int {
 	product := 0
 
 	for i := 0; i < len(races.times); i++ {
-		wins := races.wins(i)
-		if wins > 0 {
+		w := wins(races.times[i], races.distances[i])
+		if w > 0 {
 			if product == 0 {
 				product = 1
 			}
 
-			product *= wins
+			product *= w
 		}
 	}
 
 	return product
 }
 
+// Part2 returns the number of ways to win a single race with times and distances given by removing all of the spaces
+// from the times in the input.
+func Part2(races Races) int {
+	time := combineNumbers(races.times)
+	distance := combineNumbers(races.distances)
+
+	return wins(time, distance)
+}
+
+// combineDigits concatenates the numbers to form a single number.  For example, [1, 23, 4] becomes 1234.
+func combineNumbers(nums []int) int {
+	s := ""
+
+	for _, num := range nums {
+		s = fmt.Sprintf("%s%d", s, num)
+	}
+
+	return util.MustAtoi(s)
+}
+
 // wins returns the number of ways to win race at the given index.
-func (races Races) wins(i int) int {
+func wins(time, dist int) int {
 	// The boat has a starting speed of zero mm per ms, which increases by 1 mm/ms for every ms you hold the button.
 	// The shortest and longest times you can hold the button to win are given by:
 	//
@@ -82,18 +102,18 @@ func (races Races) wins(i int) int {
 	//   d = boat distance
 	//   h = hold time
 
-	raceTime := float64(races.times[i])
-	raceDist := float64(races.distances[i])
+	raceTime := float64(time)
+	raceDist := float64(dist)
 
 	minHoldTime := math.Ceil(0.5 * (raceTime - math.Sqrt(math.Pow(raceTime, 2)-4.0*raceDist)))
 	maxHoldTime := math.Floor(0.5 * (raceTime + math.Sqrt(math.Pow(raceTime, 2)-4.0*raceDist)))
 
 	// Have to win the race, not just tie the distance
-	if (races.times[i]-int(minHoldTime))*int(minHoldTime) == races.distances[i] {
+	if (time-int(minHoldTime))*int(minHoldTime) == dist {
 		minHoldTime += 1
 	}
 
-	if (races.times[i]-int(maxHoldTime))*int(maxHoldTime) == races.distances[i] {
+	if (time-int(maxHoldTime))*int(maxHoldTime) == dist {
 		maxHoldTime -= 1
 	}
 
