@@ -32,3 +32,33 @@ func IntList(s string) ([]int, error) {
 
 	return list, nil
 }
+
+// GCD returns the greatest common divisor of the two numbers.
+func GCD(a, b int) int {
+	for b != 0 {
+		t := b
+		b = a % b
+		a = t
+	}
+
+	return a
+}
+
+// LCM returns the least common multiple of the given numbers.
+func LCM(nums ...int) int {
+	if len(nums) == 0 {
+		return 0
+	}
+
+	if len(nums) == 1 {
+		return nums[0]
+	}
+
+	result := nums[0] * nums[1] / GCD(nums[0], nums[1])
+
+	for i := 2; i < len(nums); i++ {
+		result = LCM(result, nums[i])
+	}
+
+	return result
+}
