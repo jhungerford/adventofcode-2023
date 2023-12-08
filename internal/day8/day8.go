@@ -50,7 +50,7 @@ func Part2(network Network) int {
 		return n[2] == 'Z'
 	}
 
-	// Find the path length for each node that starts with a in parallel.
+	// Find the path length for each node that ends with 'A' in parallel.
 	lengths := make(chan int, len(starts))
 	var wg sync.WaitGroup
 
@@ -67,7 +67,7 @@ func Part2(network Network) int {
 	wg.Wait()
 	close(lengths)
 
-	// Total steps is the LCM of each path.
+	// Total steps is the LCM of each path's steps.
 	var pathSteps []int
 
 	for length := range lengths {
