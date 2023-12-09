@@ -12,4 +12,5 @@ func main() {
 	}
 
 	fmt.Println("Part 1:", day9.Part1(readings))
+	fmt.Println("Part 2:", day9.Part2(readings))
 }

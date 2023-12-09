@@ -24,7 +24,32 @@ func Part1(readings Readings) int {
 
 			delta, allZero = difference(delta)
 		}
+	}
 
+	return sum
+}
+
+// Part2 returns the sum of the extrapolated previous value in each history reading.
+func Part2(readings Readings) int {
+	sum := 0
+
+	for _, history := range readings.values {
+		var firstValues []int
+
+		delta, allZero := history, false
+		for !allZero {
+			firstValues = append(firstValues, delta[0])
+
+			delta, allZero = difference(delta)
+		}
+
+		prev := 0
+
+		for i := len(firstValues) - 1; i >= 0; i-- {
+			prev = firstValues[i] - prev
+		}
+
+		sum += prev
 	}
 
 	return sum
