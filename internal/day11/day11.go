@@ -18,43 +18,6 @@ func LoadImage(filename string) (Image, error) {
 		img.pixels = append(img.pixels, []byte(line))
 	}
 
-	return img, nil
-}
-
-// Part1 returns the sum of the shortest path between every pair of galaxies.
-func Part1(img Image) int {
-	expanded := img.expand()
-
-	var galaxies []position
-
-	for r, row := range expanded.pixels {
-		for c, value := range row {
-			if value == '#' {
-				galaxies = append(galaxies, position{row: r, col: c})
-			}
-		}
-	}
-
-	sum := 0
-
-	for i, galaxy := range galaxies {
-		for j := i + 1; j < len(galaxies); j++ {
-			sum += galaxy.distance(galaxies[j])
-		}
-	}
-
-	return sum
-}
-
-type Image struct {
-	pixels [][]byte
-}
-
-// expand returns a new image where any rows or columns that contain no galaxies are twice as big.
-func (img Image) expand() Image {
-	var emptyRows []int
-	var emptyCols []int
-
 Row:
 	for row := range img.pixels {
 		for col := 0; col < len(img.pixels[row]); col++ {
@@ -63,7 +26,7 @@ Row:
 			}
 		}
 
-		emptyRows = append(emptyRows, row)
+		img.emptyRows = append(img.emptyRows, row)
 	}
 
 Col:
@@ -74,43 +37,76 @@ Col:
 			}
 		}
 
-		emptyCols = append(emptyCols, col)
+		img.emptyCols = append(img.emptyCols, col)
 	}
 
-	expanded := Image{
-		pixels: make([][]byte, 0, len(img.pixels)+len(emptyRows)),
-	}
-
-	emptyRowsIdx := 0
 	for r, row := range img.pixels {
-		emptyColsIdx := 0
-		expanded.pixels = append(expanded.pixels, make([]byte, 0, len(row)+len(emptyCols)))
-
-		for c, col := range row {
-			expanded.pixels[r+emptyRowsIdx] = append(expanded.pixels[r+emptyRowsIdx], col)
-			if emptyColsIdx < len(emptyCols) && c == emptyCols[emptyColsIdx] {
-				expanded.pixels[r+emptyRowsIdx] = append(expanded.pixels[r+emptyRowsIdx], col)
-				emptyColsIdx++
+		for c, value := range row {
+			if value == '#' {
+				img.galaxies = append(img.galaxies, position{row: r, col: c})
 			}
-		}
-
-		if emptyRowsIdx < len(emptyRows) && r == emptyRows[emptyRowsIdx] {
-			expanded.pixels = append(expanded.pixels, row)
-			for i := 0; i < len(emptyCols); i++ {
-				expanded.pixels[len(expanded.pixels)-1] = append(expanded.pixels[len(expanded.pixels)-1], '.')
-			}
-
-			emptyRowsIdx++
 		}
 	}
 
-	return expanded
+	return img, nil
+}
+
+// Part1 returns the sum of the shortest path between every pair of galaxies, where each empty row or column is
+// expanded one time.
+func Part1(img Image) int {
+	return img.galaxyDistances(2)
+}
+
+// Part2 returns the sum of the shortest path between every pair of galaxies, where empty rows and columns expand
+// to 1,000,000.
+func Part2(img Image) int {
+	return img.galaxyDistances(1_000_000)
+}
+
+// galaxyDistances returns the sum of the shortest path between every pair of galaxies, where empty rows and columns
+// are replaced by the given number of expansion rows / cols.
+func (img Image) galaxyDistances(expansion int) int {
+	sum := 0
+
+	for i, galaxy := range img.galaxies {
+		for j := i + 1; j < len(img.galaxies); j++ {
+			sum += img.distance(galaxy, img.galaxies[j], expansion)
+		}
+	}
+
+	return sum
+}
+
+type Image struct {
+	pixels    [][]byte
+	galaxies  []position
+	emptyRows []int
+	emptyCols []int
 }
 
 type position struct {
 	row, col int
 }
 
-func (pos position) distance(other position) int {
-	return max(pos.row, other.row) - min(pos.row, other.row) + max(pos.col, other.col) - min(pos.col, other.col)
+// distance returns the shortest path between this position and the other position, where empty rows and columns
+// expand by the given amount.
+func (img Image) distance(a, b position, expansion int) int {
+	emptyRows, emptyCols := 0, 0
+
+	for _, emptyRow := range img.emptyRows {
+		if emptyRow > min(a.row, b.row) && emptyRow < max(a.row, b.row) {
+			emptyRows++
+		}
+	}
+
+	for _, emptyCol := range img.emptyCols {
+		if emptyCol > min(a.col, b.col) && emptyCol < max(a.col, b.col) {
+			emptyCols++
+		}
+	}
+
+	return max(a.row, b.row) - min(a.row, b.row) +
+		max(a.col, b.col) - min(a.col, b.col) +
+		emptyRows*(expansion-1) +
+		emptyCols*(expansion-1)
 }

@@ -12,4 +12,5 @@ func main() {
 	}
 
 	fmt.Println("Part 1:", day11.Part1(img))
+	fmt.Println("Part 2:", day11.Part2(img))
 }
