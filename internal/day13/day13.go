@@ -50,6 +50,17 @@ func Part1(notes Notes) int {
 	return sum
 }
 
+// Part2 returns the sum of the reflection value of each pattern in the notes, with a single smudge fixed.
+func Part2(notes Notes) int {
+	sum := 0
+
+	for _, p := range notes.patterns {
+		sum += p.findSmudgedReflection().value()
+	}
+
+	return sum
+}
+
 type Notes struct {
 	patterns []pattern
 }
@@ -101,6 +112,64 @@ func (p pattern) isColReflection(col int) bool {
 	}
 
 	return true
+}
+
+func (p pattern) findSmudgedReflection() reflection {
+	reflect := reflection{}
+
+	for row := 0; row < len(p)-1; row++ {
+		if p.isRowSmudgedReflection(row) {
+			reflect.above = row + 1
+		}
+	}
+
+	for col := 0; col < len(p[0])-1; col++ {
+		if p.isColSmudgedReflection(col) {
+			reflect.left = col + 1
+		}
+	}
+
+	return reflect
+}
+
+func (p pattern) isRowSmudgedReflection(row int) bool {
+	foundSmudge := false
+
+	check := min(row+1, len(p)-row-1)
+
+	for i := 0; i < check; i++ {
+		for col := range p[row] {
+			if p[row-i][col] != p[row+i+1][col] {
+				if foundSmudge {
+					return false
+				}
+
+				foundSmudge = true
+			}
+		}
+	}
+
+	return foundSmudge
+}
+
+func (p pattern) isColSmudgedReflection(col int) bool {
+	foundSmudge := false
+
+	check := min(col+1, len(p[0])-col-1)
+
+	for i := 0; i < check; i++ {
+		for row := range p {
+			if p[row][col-i] != p[row][col+i+1] {
+				if foundSmudge {
+					return false
+				}
+
+				foundSmudge = true
+			}
+		}
+	}
+
+	return foundSmudge
 }
 
 // reflection captures the rows to the left or above a reflection in a pattern

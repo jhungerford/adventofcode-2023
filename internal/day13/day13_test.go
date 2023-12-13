@@ -29,6 +29,30 @@ func TestPart1(t *testing.T) {
 	}
 }
 
+func TestPart2(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		filename string
+		want     int
+	}{
+		{"day13_sample.txt", 400},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.filename, func(t *testing.T) {
+			notes, err := LoadNotes(tt.filename)
+			if err != nil {
+				t.Fatalf("failed to load notes from '%s': %v", tt.filename, err)
+			}
+
+			if got := Part2(notes); got != tt.want {
+				t.Errorf("Part1() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
 func Test_reflections(t *testing.T) {
 	t.Parallel()
 
