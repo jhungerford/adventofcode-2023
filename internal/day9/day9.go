@@ -3,7 +3,7 @@ package day9
 import "github.com/jhungerford/adventofcode-2023/internal/util"
 
 func LoadReadings(filename string) (Readings, error) {
-	values, err := util.ParseInputLines(filename, util.IntList)
+	values, err := util.ParseInputLines(filename, true, util.IntList)
 	if err != nil {
 		return Readings{}, err
 	}

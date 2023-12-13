@@ -124,7 +124,7 @@ func LoadAlmanac(filename string) (Almanac, error) {
 		currentCategory: "",
 	}
 
-	parsed, err := util.ParseInputLinesSections(filename, "seeds", init, sectionParsers)
+	parsed, err := util.ParseInputLinesSections(filename, "seeds", init, true, sectionParsers)
 	if err != nil {
 		return Almanac{}, fmt.Errorf("failed to parse almanac: %w", err)
 	}

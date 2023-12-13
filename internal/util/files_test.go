@@ -24,7 +24,7 @@ func Test_ReadInputLines(t *testing.T) {
 func Test_ParseInputLines(t *testing.T) {
 	want := []int{1, 2, 3}
 
-	got, err := ParseInputLines("files_sample.txt", strconv.Atoi)
+	got, err := ParseInputLines("files_sample.txt", true, strconv.Atoi)
 	if err != nil {
 		t.Fatalf("failed to parse input lines: %v", err)
 	}
@@ -37,7 +37,7 @@ func Test_ParseInputLines(t *testing.T) {
 func Test_ParseInputLinesFailParse(t *testing.T) {
 	parseErr := errors.New("no lines are valid")
 
-	_, err := ParseInputLines("files_sample.txt", func(line string) (string, error) {
+	_, err := ParseInputLines("files_sample.txt", true, func(line string) (string, error) {
 		return "", parseErr
 	})
 
@@ -77,7 +77,7 @@ func Test_ParseInputLinesSections(t *testing.T) {
 		},
 	}
 
-	got, err := ParseInputLinesSections("files_sample_sections.txt", "header", resultStruct{}, parsers)
+	got, err := ParseInputLinesSections("files_sample_sections.txt", "header", resultStruct{}, true, parsers)
 	if err != nil {
 		t.Fatalf("failed to parse input lines: %v", err)
 	}

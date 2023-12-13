@@ -25,7 +25,7 @@ func LoadNetwork(filename string) (Network, error) {
 		},
 	}
 
-	return util.ParseInputLinesSections(filename, "instructions", Network{nodes: map[string]node{}}, parsers)
+	return util.ParseInputLinesSections(filename, "instructions", Network{nodes: map[string]node{}}, true, parsers)
 }
 
 // Part1 calculates the number of steps it takes to go from AAA to ZZZ in the network.  Directions are repeated as

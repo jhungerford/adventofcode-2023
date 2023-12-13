@@ -18,11 +18,11 @@ func StringLineParser(line string) (string, error) {
 
 // ReadInputLines returns the raw lines in the input file.
 func ReadInputLines(filename string) ([]string, error) {
-	return ParseInputLines(filename, StringLineParser)
+	return ParseInputLines(filename, true, StringLineParser)
 }
 
 // ParseInputLines applies the parseLine function to each line in the input file.
-func ParseInputLines[T any](filename string, parseLine LineParser[T]) ([]T, error) {
+func ParseInputLines[T any](filename string, skipBlank bool, parseLine LineParser[T]) ([]T, error) {
 	sectionParsers := map[string]SectionLineParser[[]T]{
 		"section": func(line string, t *[]T) (string, error) {
 			parsed, err := parseLine(line)
@@ -38,7 +38,7 @@ func ParseInputLines[T any](filename string, parseLine LineParser[T]) ([]T, erro
 
 	var parsed []T
 
-	return ParseInputLinesSections(filename, "section", parsed, sectionParsers)
+	return ParseInputLinesSections(filename, "section", parsed, skipBlank, sectionParsers)
 }
 
 // SectionLineParser takes a line and result, parses the line, and returns the next section name.
@@ -50,6 +50,7 @@ type SectionLineParser[T any] func(string, *T) (string, error)
 func ParseInputLinesSections[T any](
 	filename, firstSection string,
 	t T,
+	skipBlank bool,
 	sectionParsers map[string]SectionLineParser[T],
 ) (T, error) {
 	file, err := findInputFile(filename)
@@ -71,7 +72,7 @@ func ParseInputLinesSections[T any](
 	for scanner.Scan() {
 		line := scanner.Text()
 
-		if line == "" {
+		if skipBlank && line == "" {
 			continue
 		}
 

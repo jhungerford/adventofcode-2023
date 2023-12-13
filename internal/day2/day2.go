@@ -19,7 +19,7 @@ type pull struct {
 
 // LoadGames loads a list of games from the given input file.
 func LoadGames(file string) ([]Game, error) {
-	return util.ParseInputLines(file, parseGame)
+	return util.ParseInputLines(file, true, parseGame)
 }
 
 func parseGame(line string) (Game, error) {

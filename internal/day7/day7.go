@@ -8,7 +8,7 @@ import (
 )
 
 func LoadHands(filename string) ([]Hand, error) {
-	return util.ParseInputLines(filename, func(line string) (Hand, error) {
+	return util.ParseInputLines(filename, true, func(line string) (Hand, error) {
 		// Hand looks like '32T3K 765', where the first five digits are cards, and the second number is a bid.
 		bid, err := strconv.Atoi(line[6:])
 		if err != nil {
