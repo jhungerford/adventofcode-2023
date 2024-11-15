@@ -6,11 +6,18 @@ import (
 )
 
 func main() {
-	platform, err := day14.LoadPlatform("input/day14.txt")
+	part1Platform, err := day14.LoadPlatform("input/day14.txt")
 	if err != nil {
 		fmt.Printf("failed to load platform: %v", err)
 		return
 	}
 
-	fmt.Println("Part 1:", day14.Part1(platform))
+	part2Platform, err := day14.LoadPlatform("input/day14.txt")
+	if err != nil {
+		fmt.Printf("failed to load platform: %v", err)
+		return
+	}
+
+	fmt.Println("Part 1:", day14.Part1(part1Platform))
+	fmt.Println("Part 2:", day14.Part2(part2Platform))
 }

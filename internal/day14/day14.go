@@ -1,12 +1,21 @@
 package day14
 
 import (
+	"crypto/sha256"
+	"encoding/base64"
 	"fmt"
 	"github.com/jhungerford/adventofcode-2023/internal/util"
+	"slices"
 )
 
 func Part1(platform *Platform) string {
 	platform.Tilt(platform.North())
+
+	return fmt.Sprintf("%d", platform.Load())
+}
+
+func Part2(platform *Platform) string {
+	platform.NumCycles(1000000000)
 
 	return fmt.Sprintf("%d", platform.Load())
 }
@@ -55,6 +64,43 @@ func (p *Platform) Tilt(dir Direction) {
 				toPos = dir.move(fromPos)
 			}
 		}
+	}
+}
+
+func (p *Platform) Cycle() {
+	p.Tilt(p.North())
+	p.Tilt(p.West())
+	p.Tilt(p.South())
+	p.Tilt(p.East())
+}
+
+func (p *Platform) NumCycles(num int) {
+	var hashes []string
+
+	hashes = append(hashes, p.hash())
+
+	cycles := 0
+	cycleStart := -1
+
+	for cycles < num {
+		p.Cycle()
+		cycles++
+
+		cycleHash := p.hash()
+
+		cycleStart = slices.Index(hashes, cycleHash)
+		if cycleStart != -1 {
+			break
+		}
+
+		hashes = append(hashes, cycleHash)
+	}
+
+	cycleLen := cycles - cycleStart
+	remainingCycles := (num - cycles) % cycleLen
+
+	for i := 0; i < remainingCycles; i++ {
+		p.Cycle()
 	}
 }
 
@@ -107,12 +153,12 @@ func (p *Platform) East() Direction {
 		move: func(p Position) Position {
 			return Position{
 				row: p.row,
-				col: p.col - 1,
+				col: p.col + 1,
 			}
 		},
 		traverse: func(yield func(Position, byte) bool) {
-			// West is left-to-right
-			for colNum := 0; colNum < len(p.rows[0]); colNum++ {
+			// East is right-to-left
+			for colNum := len(p.rows[0]) - 1; colNum >= 0; colNum-- {
 				for rowNum := range p.rows {
 					pos := Position{row: rowNum, col: colNum}
 					if !yield(pos, p.get(pos)) {
@@ -129,12 +175,12 @@ func (p *Platform) West() Direction {
 		move: func(p Position) Position {
 			return Position{
 				row: p.row,
-				col: p.col + 1,
+				col: p.col - 1,
 			}
 		},
 		traverse: func(yield func(Position, byte) bool) {
-			// East is right-to-left
-			for colNum := len(p.rows[0]) - 1; colNum >= 0; colNum-- {
+			// West is left-to-right
+			for colNum := 0; colNum < len(p.rows[0]); colNum++ {
 				for rowNum := range p.rows {
 					pos := Position{row: rowNum, col: colNum}
 					if !yield(pos, p.get(pos)) {
@@ -183,4 +229,14 @@ func (p *Platform) String() string {
 	}
 
 	return s
+}
+
+func (p *Platform) hash() string {
+	hash := sha256.New()
+
+	for _, row := range p.rows {
+		hash.Write(row)
+	}
+
+	return base64.StdEncoding.EncodeToString(hash.Sum(nil))
 }
