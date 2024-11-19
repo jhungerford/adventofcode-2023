@@ -6,7 +6,11 @@ import (
 )
 
 func Part1(m *Map) string {
-	return fmt.Sprintf("%d", m.Energize())
+	return fmt.Sprintf("%d", m.part1Energize())
+}
+
+func Part2(m *Map) string {
+	return fmt.Sprintf("%d", m.part2Energize())
 }
 
 type Map struct {
@@ -97,23 +101,59 @@ func LoadMap(filename string) (*Map, error) {
 	return &Map{rows}, nil
 }
 
-func (m *Map) Energize() int {
+func (m *Map) part1Energize() int {
+	return m.energize(beam{pos: position{0, 0}, dir: east})
+}
+
+func (m *Map) part2Energize() int {
+	// Corners
+	allFrom := []beam{
+		// top-left
+		{pos: position{0, 0}, dir: east},
+		{pos: position{0, 0}, dir: south},
+		// bottom-left
+		{pos: position{len(m.rows) - 1, 0}, dir: east},
+		{pos: position{len(m.rows) - 1, 0}, dir: north},
+		// bottom-right
+		{pos: position{len(m.rows) - 1, len(m.rows[0]) - 1}, dir: west},
+		{pos: position{len(m.rows) - 1, len(m.rows[0]) - 1}, dir: north},
+		// top-right
+		{pos: position{0, len(m.rows[0]) - 1}, dir: west},
+		{pos: position{0, len(m.rows[0]) - 1}, dir: south},
+	}
+
+	// Top + Bottom
+	for col := 1; col < len(m.rows[0])-1; col++ {
+		allFrom = append(allFrom, beam{pos: position{0, col}, dir: south})
+		allFrom = append(allFrom, beam{pos: position{len(m.rows) - 1, col}, dir: north})
+	}
+
+	// Left + Right
+	for row := 1; row < len(m.rows)-1; row++ {
+		allFrom = append(allFrom, beam{pos: position{row, 0}, dir: east})
+		allFrom = append(allFrom, beam{pos: position{row, len(m.rows[0]) - 1}, dir: west})
+	}
+
+	maxEnergy := 0
+
+	for _, from := range allFrom {
+		maxEnergy = max(maxEnergy, m.energize(from))
+	}
+
+	return maxEnergy
+}
+
+func (m *Map) energize(from beam) int {
 	positions := map[position]interface{}{}
 	beams := map[beam]interface{}{}
 
 	toVisit := []beam{
-		{
-			pos: position{0, 0},
-			dir: east,
-		},
+		from,
 	}
 
 	for len(toVisit) > 0 {
 		at := toVisit[0]
 		toVisit = toVisit[1:]
-
-		// TODO: remove debugging
-		fmt.Println(at.String())
 
 		// Check for beam loops
 		if _, ok := beams[at]; ok {
@@ -129,17 +169,6 @@ func (m *Map) Energize() int {
 				toVisit = append(toVisit, next)
 			}
 		}
-	}
-
-	for rowNum := 0; rowNum < len(m.rows); rowNum++ {
-		for colNum := 0; colNum < len(m.rows[0]); colNum++ {
-			if _, ok := positions[position{rowNum, colNum}]; ok {
-				fmt.Printf("#")
-			} else {
-				fmt.Printf(".")
-			}
-		}
-		fmt.Println()
 	}
 
 	return len(positions)
